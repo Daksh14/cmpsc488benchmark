@@ -6,8 +6,8 @@ CLIENT_SRC = ./cpp/client.cpp
 SERVER_SRC = ./cpp/server.cpp
 
 # Output executables
-CLIENT_BIN = client
-SERVER_BIN = server
+CLIENT_BIN = ./target/client
+SERVER_BIN = ./target/server
 
 # Compilation rules
 all: $(CLIENT_BIN) $(SERVER_BIN)

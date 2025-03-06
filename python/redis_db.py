@@ -11,9 +11,10 @@ def cosine_similarity(v1, v2):
     return np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
 
 class Charm:
-    def __init__(self, name: str, id: int):
+    def __init__(self, name: str, id: int, db_instance):
         self.name = name
         self.id = id
+        self.db = db_instance
 
     def get_bytes(self):
         encoded = self.name.encode('utf-8')
@@ -21,6 +22,18 @@ class Charm:
         array.extend(self.id.to_bytes())
 
         return np.array(array, dtype=np.float32)
+
+    def insert_charm(self):
+        charm = self.get_bytes().tobytes()
+        self.db.set(f'charm:{self.name}', charm)
+        print(f"Added charm: {self.name} with vector: {charm}")
+    
+    def delete_charm(self):
+        self.db.delete(f'charm:{self.name}')
+    
+    def update_charm(self):
+        self.insert_charm()
+
 
 
 # Clear previous data
@@ -35,12 +48,9 @@ charms = {
 
 # Add charms
 for charm_name, charm_id in charms.items():
-    charm = Charm(charm_name, charm_id)
-    vector = charm.get_bytes().tobytes()
-    print(vector)
+    charm = Charm(charm_name, charm_id, r)
 
-    r.set(f"charm:{charm_name}", vector)
-    print(f"Added charm: {charm_name} with vector: {vector}")
+    charm.insert_charm()
 
 # Query vector
 query_vector = np.array([10, 20, 40, 30, 50, 55, 65, 22, 23, 10], dtype=np.float32)
@@ -59,7 +69,7 @@ def sanitize(arr):
 # Manual similarity search
 results = []
 for charm_name, charm_id in charms.items():
-    charm = Charm(charm_name, charm_id)
+    charm = Charm(charm_name, charm_id, r)
     vector = sanitize(charm.get_bytes())
     print(vector)
 
